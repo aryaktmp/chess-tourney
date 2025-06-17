@@ -126,7 +126,7 @@
 
         .bracket-container {
             position: relative;
-            padding: 0 2.5rem 2.5rem;
+            padding: 2.5rem;
             background: white;
             animation: fadeIn 1s ease-out 0.4s both;
         }
@@ -224,6 +224,22 @@
             will-change: transform, opacity;
             backface-visibility: hidden;
             -webkit-font-smoothing: subpixel-antialiased;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.7;
+        }
+
+        .cursor-particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 24px;
+            line-height: 1;
+            transform-origin: center;
+            will-change: transform, opacity;
         }
 
         @keyframes floatPiece {
@@ -326,8 +342,8 @@
 
         .refresh-button {
             position: absolute;
-            top: 20px;
-            right: 40px;
+            top: 48px;
+            right: 55px;
             background: var(--primary);
             color: white;
             border: none;
@@ -369,6 +385,7 @@
 </head>
 
 <body>
+    <div id="cursorTrail" class="cursor-trail"></div>
     <div class="chess-pieces-bg" id="chessPiecesBg"></div>
     <div class="container">
         <header>
@@ -493,7 +510,7 @@
             const tournamentBracket = document.getElementById('tournamentBracket');
             let refreshTimer;
             let isRefreshing = false;
-            const REFRESH_INTERVAL = 60000;
+            const REFRESH_INTERVAL = 360000;
 
             function refreshBracket() {
                 if (isRefreshing) return;
@@ -554,27 +571,155 @@
                 }
             });
 
-            // const hoverEffect = document.createElement('div');
-            // hoverEffect.className = 'chess-hover-effect';
-            // document.body.appendChild(hoverEffect);
+            // Cursor Trail Effect
+            const cursorTrail = document.getElementById('cursorTrail');
+            const cursorParticles = [];
+            const cursorChars = ['♔', '♕', '♖', '♗', '♘', '♙'];
+            const cursorColors = ['#2c3e50', '#e74c3c', '#3498db', '#b58863', '#f0d9b5', '#1a252f'];
+            let mouseX = 0;
+            let mouseY = 0;
+            let animationId;
 
-            // let lastX = 0;
-            // let lastY = 0;
-            // let lastTime = 0;
-            // const HOVER_DEBOUNCE = 16;
+            // Create a particle for the cursor trail
+            function createCursorParticle() {
+                const particle = document.createElement('div');
+                particle.className = 'cursor-particle';
+                particle.textContent = cursorChars[Math.floor(Math.random() * cursorChars.length)];
+                particle.style.color = cursorColors[Math.floor(Math.random() * cursorColors.length)];
 
-            // document.addEventListener('mousemove', (e) => {
-            //     const now = performance.now();
-            //     if (now - lastTime < HOVER_DEBOUNCE) return;
+                // Random size between 16px and 32px
+                const size = Math.random() * 16 + 16;
+                particle.style.fontSize = `${size}px`;
 
-            //     lastX = e.clientX;
-            //     lastY = e.clientY;
-            //     lastTime = now;
+                // Position at current mouse position with slight offset
+                const offsetX = (Math.random() - 0.5) * 30;
+                const offsetY = (Math.random() - 0.5) * 30;
 
-            //     requestAnimationFrame(() => {
-            //         hoverEffect.style.transform = `translate(${lastX}px, ${lastY}px) translate(-50%, -50%) scale(1)`;
-            //     });
-            // }, passiveOptions);
+                particle.style.left = `${mouseX + offsetX}px`;
+                particle.style.top = `${mouseY + offsetY}px`;
+
+                // Random rotation
+                const rotation = (Math.random() * 60 - 30);
+                particle.style.transform = `translate(-50%, -50%) rotate(${rotation}deg)`;
+
+                // Random scale
+                const scale = Math.random() * 0.5 + 0.5;
+                particle.style.transform += ` scale(${scale})`;
+
+                cursorTrail.appendChild(particle);
+
+                // Animation properties
+                const duration = Math.random() * 1000 + 1000; // 1-2 seconds
+                const startTime = Date.now();
+
+                // Store particle data
+                const particleData = {
+                    element: particle,
+                    startX: mouseX + offsetX,
+                    startY: mouseY + offsetY,
+                    startTime,
+                    duration,
+                    velocityX: (Math.random() - 0.5) * 4,
+                    velocityY: (Math.random() - 0.5) * 4,
+                    rotation: rotation,
+                    rotationSpeed: (Math.random() - 0.5) * 0.2,
+                    scale: scale,
+                    opacity: 1
+                };
+
+                cursorParticles.push(particleData);
+
+                return particleData;
+            }
+
+            // Update particle positions
+            function updateParticles() {
+                const now = Date.now();
+
+                for (let i = cursorParticles.length - 1; i >= 0; i--) {
+                    const p = cursorParticles[i];
+                    const age = now - p.startTime;
+                    const progress = age / p.duration;
+
+                    if (progress >= 1) {
+                        // Remove expired particles
+                        if (p.element.parentNode) {
+                            cursorTrail.removeChild(p.element);
+                        }
+                        cursorParticles.splice(i, 1);
+                        continue;
+                    }
+
+                    // Update position with velocity and gravity
+                    p.velocityY += 0.1; // Gravity
+
+                    const x = p.startX + p.velocityX * age * 0.1;
+                    const y = p.startY + p.velocityY * age * 0.1;
+
+                    // Update rotation
+                    p.rotation += p.rotationSpeed;
+
+                    // Update opacity (fade out)
+                    p.opacity = 1 - progress;
+
+                    // Apply transformations
+                    p.element.style.left = `${x}px`;
+                    p.element.style.top = `${y}px`;
+                    p.element.style.opacity = p.opacity;
+                    p.element.style.transform = `translate(-50%, -50%) rotate(${p.rotation}deg) scale(${p.scale})`;
+                }
+
+                // Continue animation
+                animationId = requestAnimationFrame(updateParticles);
+            }
+
+            // Mouse move handler
+            let lastEmitTime = 0;
+            const emitInterval = 50; // ms between particle emissions
+
+            function onMouseMove(e) {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                // Limit emission rate
+                const now = Date.now();
+                if (now - lastEmitTime > emitInterval) {
+                    createCursorParticle();
+                    lastEmitTime = now;
+                }
+            }
+
+            // Touch move handler
+            function onTouchMove(e) {
+                e.preventDefault();
+                if (e.touches.length > 0) {
+                    mouseX = e.touches[0].clientX;
+                    mouseY = e.touches[0].clientY;
+
+                    // Create multiple particles for touch
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => createCursorParticle(), i * 50);
+                    }
+                }
+            }
+
+            // Start the animation loop
+            updateParticles();
+
+            // Add event listeners
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            document.addEventListener('touchstart', onTouchMove, { passive: false });
+
+            // Clean up
+            window.addEventListener('beforeunload', () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('touchmove', onTouchMove);
+                document.removeEventListener('touchstart', onTouchMove);
+                cancelAnimationFrame(animationId);
+            });
+
+            // Rest of your existing code...
         });
     </script>
 </body>
