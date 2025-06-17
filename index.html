@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Tournament Bracket</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .bracket-container {
+            width: 100%;
+            overflow: hidden;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            min-height: 600px;
+        }
+
+        .tournament-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            iframe {
+                min-height: 800px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Chess Tournament Bracket</h1>
+
+        <div class="tournament-info">
+            <h2>Tournament Information</h2>
+            <p>Welcome to the official chess tournament bracket. Follow the progress of the tournament in real-time as
+                players compete for the championship title.</p>
+            <p>The bracket will be updated automatically as matches are completed. Check back regularly for updates!</p>
+        </div>
+
+        <div class="bracket-container">
+            <iframe src="https://brackethq.com/b/7hhqc/embed/?name=1&stand=1" width="100%" height="550"
+                frameborder="0"></iframe>
+        </div>
+
+        <div class="additional-info">
+            <h3>Tournament Rules</h3>
+            <ul>
+                <li>Standard chess rules apply</li>
+                <li>Time control: 30 minutes per player</li>
+                <li>In case of a draw, players will play a blitz tiebreaker</li>
+                <li>All moves must be made using legal chess moves</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
