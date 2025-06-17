@@ -1,94 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Tournament Bracket</title>
+    <title>Staditek Chess Tourney</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #1a252f;
+            --accent: #3498db;
+            --chess-light: #f0d9b5;
+            --chess-dark: #b58863;
+            --heading-font: 'Cormorant Garamond', serif;
+            --body-font: 'Montserrat', sans-serif;
+            --accent-font: 'Playfair Display', serif;
         }
-
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--body-font);
+            line-height: 1.7;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .bracket-container {
-            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
             overflow: hidden;
-            margin: 20px 0;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
         }
-
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            color: white;
+            padding: 2.5rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><text x="0" y=".8em" font-size="80" fill="rgba(255,255,255,0.05)">♞</text></svg>');
+            opacity: 0.3;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary);
+        }
+        
+        .tournament-info {
+            padding: 2.5rem;
+            background: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+        
+        .tournament-info p {
+            color: #555;
+            margin-bottom: 1rem;
+            max-width: 800px;
+        }
+        
+        .bracket-container {
+            padding: 0 2.5rem 2.5rem;
+            background: white;
+            position: relative;
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+        
+        .bracket-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+        }
+        
         iframe {
             width: 100%;
             border: none;
-            min-height: 600px;
+            min-height: 700px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
-
-        .tournament-info {
+        
+        iframe:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .additional-info {
+            padding: 2.5rem;
             background: #f8f9fa;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+        
+        .rules-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .rule-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .rule-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+        
+        .rule-item i {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        
+        .rule-item h4 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--dark);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        .chess-pieces-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+            pointer-events: none;
+            overflow: hidden;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
+        .chess-piece {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0;
+            animation: floatPiece 15s linear infinite;
+        }
 
-            iframe {
-                min-height: 800px;
+        @keyframes floatPiece {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
             }
+            10% {
+                opacity: 0.7;
+            }
+            90% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .container {
+                border-radius: 12px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .tournament-info, 
+            .bracket-container,
+            .additional-info {
+                padding: 1.5rem;
+            }
+            
+            iframe {
+                min-height: 600px;
+            }
+            
+            .rules-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chess-hover-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            pointer-events: none;
+            transition: transform 0.3s ease, background 0.3s ease;
         }
     </style>
 </head>
-
 <body>
+    <div class="chess-pieces-bg" id="chessPiecesBg"></div>
     <div class="container">
-        <h1>Chess Tournament Bracket</h1>
+        <header>
+            <h1>Staditek Chess Tourney</h1>
+            <p>Follow the battle of minds as champions compete for glory</p>
+        </header>
 
         <div class="tournament-info">
             <h2>Tournament Information</h2>
-            <p>Welcome to the official chess tournament bracket. Follow the progress of the tournament in real-time as
-                players compete for the championship title.</p>
-            <p>The bracket will be updated automatically as matches are completed. Check back regularly for updates!</p>
+            <p>Welcome to the official chess tournament bracket. Witness the strategic brilliance as players from around the world compete for the championship title. Every move counts in this ultimate test of skill and strategy.</p>
+            <p>The bracket updates in real-time. Refresh the page to see the latest results and matchups!</p>
         </div>
 
         <div class="bracket-container">
-            <iframe src="https://brackethq.com/b/7hhqc/embed/?name=1&stand=1" width="100%" height="550"
-                frameborder="0"></iframe>
+            <iframe src="https://brackethq.com/b/7hhqc/embed/?name=1&stand=1" width="100%" height="700" frameborder="0"></iframe>
         </div>
-
+        
         <div class="additional-info">
-            <h3>Tournament Rules</h3>
-            <ul>
-                <li>Standard chess rules apply</li>
-                <li>Time control: 30 minutes per player</li>
-                <li>In case of a draw, players will play a blitz tiebreaker</li>
-                <li>All moves must be made using legal chess moves</li>
-            </ul>
+            <h2>Tournament Rules</h2>
+            <div class="rules-list">
+                <div class="rule-item">
+                    <i class="fas fa-chess-knight"></i>
+                    <h4>Standard Rules</h4>
+                    <p>All standard FIDE chess rules apply. Players must follow proper chess etiquette throughout the tournament.</p>
+                </div>
+                <div class="rule-item">
+                    <i class="fas fa-clock"></i>
+                    <h4>Time Control</h4>
+                    <p>30 minutes per player with a 5-second delay. Time controls are strictly enforced by the tournament director.</p>
+                </div>
+                <div class="rule-item">
+                    <i class="fas fa-trophy"></i>
+                    <h4>Tiebreakers</h4>
+                    <p>In case of a draw, players will proceed to a blitz tiebreaker with 5 minutes per player plus 3 seconds increment.</p>
+                </div>
+                <div class="rule-item">
+                    <i class="fas fa-chess-board"></i>
+                    <h4>Fair Play</h4>
+                    <p>All moves must be legal chess moves. Any form of cheating will result in immediate disqualification.</p>
+                </div>
+            </div>
         </div>
+        
+        <footer>
+            <p>&copy; 2025 Staditek Chess Tourney. All rights reserved.</p>
+        </footer>
     </div>
-</body>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate elements when they come into view
+            const animateOnScroll = () => {
+                const elements = document.querySelectorAll('.rule-item, .tournament-info, .bracket-container, .additional-info');
+                elements.forEach(element => {
+                    const elementTop = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    if (elementTop < windowHeight - 100) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            };
 
+            // Initial check
+            animateOnScroll();
+            
+            // Check on scroll
+            window.addEventListener('scroll', animateOnScroll);
+
+            // Add floating chess pieces
+            const chessPieces = ['♔', '♕', '♖', '♗', '♘', '♙', '♚', '♛', '♜', '♝', '♞', '♟'];
+            const container = document.getElementById('chessPiecesBg');
+            
+            function createChessPiece() {
+                const piece = document.createElement('div');
+                piece.className = 'chess-piece';
+                piece.textContent = chessPieces[Math.floor(Math.random() * chessPieces.length)];
+                
+                // Random position and animation duration
+                const size = Math.random() * 2 + 1;
+                const duration = Math.random() * 20 + 15;
+                const delay = Math.random() * 5;
+                const left = Math.random() * 100;
+                
+                piece.style.left = `${left}%`;
+                piece.style.fontSize = `${size}rem`;
+                piece.style.animationDuration = `${duration}s`;
+                piece.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(piece);
+                
+                // Remove piece after animation completes
+                setTimeout(() => {
+                    piece.remove();
+                }, duration * 1000);
+            }
+            
+            // Create initial pieces
+            for (let i = 0; i < 10; i++) {
+                setTimeout(createChessPiece, i * 1000);
+            }
+            
+            // Continue creating new pieces
+            setInterval(() => {
+                if (Math.random() > 0.7) {
+                    createChessPiece();
+                }
+            }, 1000);
+
+            // Add chess hover effect
+            const hoverEffect = document.createElement('div');
+            hoverEffect.className = 'chess-hover-effect';
+            document.body.appendChild(hoverEffect);
+
+            document.addEventListener('mousemove', (e) => {
+                hoverEffect.style.left = e.clientX + 'px';
+                hoverEffect.style.top = e.clientY + 'px';
+                hoverEffect.style.transform = `translate(-50%, -50%) scale(1)`;
+            });
+
+            // Add hover effect to interactive elements
+            const interactiveElements = document.querySelectorAll('a, button, .rule-item, iframe');
+            interactiveElements.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    hoverEffect.style.transform = `translate(-50%, -50%) scale(1.5)`;
+                    hoverEffect.style.background = 'radial-gradient(circle, rgba(231,76,60,0.6) 0%, rgba(231,76,60,0) 70%)';
+                });
+                el.addEventListener('mouseleave', () => {
+                    hoverEffect.style.transform = `translate(-50%, -50%) scale(1)`;
+                    hoverEffect.style.background = 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%)';
+                });
+            });
+        });
+    </script>
+</body>
 </html>
